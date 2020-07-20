@@ -159,4 +159,4 @@ const优点：
 
 ### 7. const和static的用法
 
-
+static

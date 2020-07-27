@@ -192,8 +192,18 @@ MSL:报文最大生存时间，是任何报文在网络中存在的最长时间�
 · 服务端调用listen监听端口\
 · 服务端调用accept等待客户连接\
 · 客户端调用connect，向服务器地址和端口发起连接请求\
-· 服务端调用accept返回用于传输的socket文件描述符\
+· 服务端调用accept返回用于传输的socket文件描述符，这个socket是已完成连接的socket\
 · 客户端调用write写入数据，服务端调用read读取数据\
 · 客户端断开连接时调用close，服务端read读取数据就会读取到EOF,待数据处理完毕，服务端调用close关闭连接。
 
 监听socket和已完成连接的socket是两个不同的socket。
+
+#### listen中backlog参数的意义
+
+Linux内核会维护两个队列：\
+· 未完成连接的队列（SYN队列）：接收到SYN报文，进入SYN_RCVD状态\
+· 已完成连接的队列（Accept队列）：已完成三次握手的过程，处于ESTABLISHED状态
+
+Linux2.2之前，backlog是未完成连接队列的长度，2.2以后是已完成连接队列的长度。\
+客户端connect成功返回是在第二次握手（收到服务端的SYN+ACK），服务端accept成功返回是在第三次握手。\
+客户端调用close，会进入四次挥手过程。

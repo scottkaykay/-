@@ -66,3 +66,24 @@ find / -size +100M #查找系统中大于100M的文件
 搜索内容，如果内容存在于文本，则会以高亮形式显示。\
 · head ，tail:  语法： head [n number] 文件名    number表示显示的行数\
 ·tailf 特别适合于日志文件的跟踪，与tail -f不同的是，如果文件不增长，它不回去访问磁盘文件，减少了磁盘访问，更省能源。
+
+## Linux awk命令
+
+awk是一个强大的文本分析工具。相对于grep的查找， sed的编辑，awk在对数据分析并生成报告时显得尤为强大。简单来说，awk将文件逐行地读入，以空格为默认分隔符将每行切片，切开的部分再进行分析。\
+                    使用方法： awk '{ pattern+action }' {filenames}
+
+pattern表示awk在数据中查找的内容，action表示在找到匹配内容时所执行的一系列命令。pattern就是要表示的正则表达式，用斜杠括起来。通常，awk以文件的一行为处理单位，awk每接收文件的一行，然后执行相应的命令。
+
+### 常用命令
+
+· 搜索/etc/passwd有root关键字的**所有行**\
+awk '/root/' /etc/passwd
+
+· 搜索.etc/passwd 有root关键字的行，并显示对应的shell\
+awk -F: '/root/ {print $7}' /etc/passwd
+
+· 统计.etc/passwd :文件名，每行行号，每行的列数，对应的完整行内容\
+· awk -F: '{printf ("filename:%10s, linenumber:%3s,column:%3s,content:%3f\n",FILENAME,NR,NF,$0)}}' /etc/passwd
+
+· 统计/etc/passwd 的第二行信息\
+· awk -F: 'NR==2(print "filename: "FILENAME,$0}' /etc/passwd

@@ -5,25 +5,28 @@
 · 内存重叠的情况，**需要从高地址向低地址赋值**
 
 ```C++
-void* memcpy(void* dest,const void* src,size_t count)
+void* memcpy(void* dest,const void* src,size_t size)
 {
     char* d;
     const char* s;
+    
+    if(dest==NULL || src==NULL)
+        return NULL;
     //分情况，讨论是否有内存重叠
-    if(dest>(src+count) || (dest<src))
+    if((src<dest) && ((const char*)src+size>(char*)dest))
     {
-        d=dest;
-        s=src;
-        while(count--)
-            *d++=*s++;
+        d=((char*)dest+size-1);
+        s=((const char*)src+size-1);
+        while(size--)
+            *d--=*s--;
         
     }
     else
     {
-        d=(char*)(dest+count-1);
-        s=(char*)(src+count-1);
-        while(count--)
-            *d--=*s--;
+        d=(char*)(dest);
+        s=(const char*)(src);
+        while(size--)
+            *d++=*s++;
     }
     return dest;
 }

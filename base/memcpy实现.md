@@ -10,7 +10,7 @@ void* memcpy(void* dest,const void* src,size_t count)
     char* d;
     const char* s;
     //分情况，讨论是否有内存重叠
-    if(dest>(src+size) || (dest<src))
+    if(dest>(src+count) || (dest<src))
     {
         d=dest;
         s=src;
@@ -28,3 +28,5 @@ void* memcpy(void* dest,const void* src,size_t count)
     return dest;
 }
 ```
+memcpy将src指向的对象中的size个字符拷贝到dest指向的对象中，返回指向结果对象的指针。\
+memove的功能和memcpy一样，但解决了memcpy的内存重叠问题，但这两个函数在处理内存区域重叠的方式不同。

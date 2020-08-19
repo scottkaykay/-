@@ -63,3 +63,37 @@ int main(void)
     return 0;
 }
 ```
+
+char* 与char[]的区别：
+
+char* a="string1";\
+char b[]="string2";\
+
+a是一个指向char变量的指针，b是一个char数组，函数传参时可以混用。
+
+不同点：\
+char* 是指针变量，其指向可以改变， char[]是常量，值不能改变：\
+```C++
+char* a="string1";
+char b[]="string2";
+a=b; //OK
+a="string3"; //OK
+b=a; //ERROR!
+b="string"; //ERROR
+```
+
+b是一个char型数组的名字，也是该数组第一个元素的地址，是常量，其值不可变
+
+```C++
+char* a="string1";
+char* b="string1";  //a,b为字符指针变量，存储在栈中，但是所指的字符串内容存储在常量区，是不能修改的，a,b都指向string1,所以a,b代表的地址是相等的
+char c[]="string2";
+char d[]="string2"; //a,b为char型数组，数组中的元素都存储在栈中，是可以修改的，c,d是两个不同的数组，其地址不一样！
+
+char s[]="hello";
+char *ss="hello";
+s[0]='1'; //OK
+ss[0]='1'; //ERROR!
+char* sp=s;
+sp[0]='1'; //OK,因为sp指向数组的指针
+```

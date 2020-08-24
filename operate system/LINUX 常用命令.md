@@ -4,6 +4,7 @@
 
 · ls 查看目录中的文件\
 · cd /home 进入/home目录   cd .. 返回上一级目录   cd ../.. 返回上两级目录 cd /  返回根目录  cd ~进入用户主目录\
+· touch 文件名   创建文件\
 · mkdir dir1 创建一个叫'dir1'的目录\
 · rmdir dir1 删除一个叫'dir1'的目录\
 · rm -f file1 删除一个叫'file1'的文件， -f参数表示忽略不存在的文件\
@@ -16,7 +17,11 @@
 · tar -xvf file.tar  解压tar包\
 · unzip file.zip 解压zip包\
 · unrar file.rar  解压rar包\
-· free -m  查看服务器内存使用情况
+· free -m  查看服务器内存使用情况\
+· top 查看cpu使用情况\
+· lsof -i：端口号  查看端口被哪个进程占用（首先用lsof -i显示符合条件的进程情况）\
+· netstat -tunlp 用于显示tcp,udp的端口和进程等相关情况（-t 仅显示tcp相关选项，-u 仅显示udp相关选项， -n拒绝显示别名，能显示数字的全部转化为数字，-l仅列出有listen的服务状态，-p显示建立相关链接的程序名）\
+· netstat -tunlp | grep 端口号   用于查看指定端口号的进程情况
 
 ### ps查看进程
 

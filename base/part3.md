@@ -135,3 +135,53 @@ hash_map和map的区别：\
 友元函数和类的成员函数的区别：\
 · 成员函数有this指针，友元函数没有this指针\
 · 友元函数不能被继承
+
+
+## STL中的Allocator(空间配置器)
+
+参考：https://zhuanlan.zhihu.com/p/34725232
+
+```C++
+//main函数里的容器定义：
+std::vector<int> v;
+
+//STL中
+template<class T,class Alloc=allocator<T>>  //默认参数allocator<T>,上面将T替换成了int,当然，也可以自己实现一个allocator传入
+class vector{
+  Alloc data_allocator; //每个vector内部实例一个allocator   //为什么allocator也要接受类型T? 因为allocator除了负责内存分配和释放，还要负责对象的构造和析构，调用对象的构造和析构函数需要知道类型，另外，allocator中有为n个T类型对象分配内存的批量操作，只有知道对象类型才能计算出对象需要的空间。
+};
+```
+
+Allocator中最重要的四个函数： allocate,deallocate, construct,destroy,可以简单理解为 ::operator new , ::operator delete, 构造函数，析构函数。一个最简单的allocator就可以理解为对new,delete的简单封装，以及对构造函数和析构函数的直接调用。
+
+SGI STL的allocator包含两部分，一个是标准的allocator,一个是特殊配置器(默认使用的，在memory中实现，下面对其展开)：\
+· <stl_construct.h> 定义了全局函数construct和destroy,负责对象构造和析构\
+· <stl_alloc.h> 内存配置和释放在此处实现，其内部有两级配置器，第一级结构简单，封装malloc()和free()，第二级实现了自由链表和内存池，用于提升大量小额内存配置时的性能。\
+· <stl_uninitialiezed.h> 一些用于填充和拷贝大块内存的全局函数
+
+对象的构造/析构，与内存的分配和释放是分离实现的
+
+用户代码实例化一个vector对象，vector对象调用alloc的接口，此时不需要实例化一个空间配置器，只要调用alloc的静态函数就行了。
+
+std::alloc的接口与标准非常类似：\
+· static T* allocate() 函数负责空间配置，返回一个T对象大小的空间\
+· static T* allocate(size_t) 函数负责批量空间配置\
+· static void deallocate(T*)函数负责空间释放\
+· static void deallocate(T*,size_t) 函数负责批量空间释放
+
+第一级空间配置器进行大空间的配置：\
+```C++
+template<int inst>
+class __malloc_alloc_template{...};
+// allocate()直接使用malloc()
+//deallocate直接使用free()
+//模拟c++的set_new_handler()以处理内存不足的情况
+```
+
+第二级空间配置器，程序多次进行小空间配置时，可以从自由链表和内存池中获取空间，减少系统调用，提升性能。
+```C++
+template<bool threads,int inst>
+class __default_alloc_template{..};
+//维护16个自由链表,负责16中小型区块的次配置能力，内存池以malloc()配置而得，如果内存不足，转调用第一级配置器
+//如果需求大于128Byte，转调用第一级配置器
+```

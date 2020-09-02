@@ -187,6 +187,7 @@ int strcmp(char* str1,const char* str2)
 ## memcpy
 
 memcpy函数用于把资源内存拷贝到目标内存，拷贝多少个，有一个size变量控制\
+```c++
 void* memcpy1(void* des,void* src,size_t size)
 {
     if(des==NULL && src==NULL)
@@ -201,6 +202,7 @@ void* memcpy1(void* des,void* src,size_t size)
     }
     return des;
 }
+```
 
 ## 使用sizeof求解类对象的大小因素
 

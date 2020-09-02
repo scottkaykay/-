@@ -1,0 +1,78 @@
+## std::move原理
+
+std::move执行一个无条件的转化，将左值转化为右值引用，通过右值引用使用该值，用于移动语义，完成对象状态或所有权的转移。
+可以减少不必要的临时对象复制(临时对象的创建销毁对性能有较大的影响)，提高效率。比如vector的push_back操作，会对参数对象进行复制，造成对象内存的额外创建（每加入一个元素都会创建并复制临时对象，结束后销毁）。
+对指针类型的标准库对象并不需要这样做。
+
+为了实现移动语义，需要定义转移构造函数或转移赋值操作符：
+
+```C++
+class MyString { 
+ private: 
+  char* _data; 
+  size_t   _len; 
+  void _init_data(const char *s) { 
+    _data = new char[_len+1]; 
+    memcpy(_data, s, _len); 
+    _data[_len] = '\0'; 
+  } 
+ public: 
+  MyString() { 
+    _data = NULL; 
+    _len = 0; 
+  } 
+
+  MyString(const char* p) { 
+    _len = strlen (p); 
+    _init_data(p); 
+  } 
+
+  MyString(const MyString& str) { 
+    _len = str._len; 
+    _init_data(str._data); 
+    std::cout << "Copy Constructor is called! source: " << str._data << std::endl; 
+  } 
+
+  MyString& operator=(const MyString& str) { 
+    if (this != &str) { 
+      _len = str._len; 
+      _init_data(str._data); 
+    } 
+    std::cout << "Copy Assignment is called! source: " << str._data << std::endl; 
+    return *this; 
+  } 
+
+  virtual ~MyString() { 
+    if (_data) free(_data); 
+  } 
+ }; 
+
+ int main() { 
+  MyString a; 
+  a = MyString("Hello"); 
+  std::vector<MyString> vec; 
+  vec.push_back(MyString("World")); 
+ }
+ 
+ //转移构造函数的定义
+ MyString(MyString&& str) { 
+    std::cout << "Move Constructor is called! source: " << str._data << std::endl; 
+    _len = str._len; 
+    _data = str._data; 
+    str._len = 0; 
+    str._data = NULL; 
+ }
+ //转移赋值操作符的定义
+ MyString& operator=(MyString&& str) { 
+    std::cout << "Move Assignment is called! source: " << str._data << std::endl; 
+    if (this != &str) { 
+      _len = str._len; 
+      _data = str._data; 
+      str._len = 0; 
+      str._data = NULL; 
+    } 
+    return *this; 
+ }
+```
+
+## 

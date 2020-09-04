@@ -1,5 +1,7 @@
 ## slect poll epoll解释
 
+参考：https://blog.csdn.net/sszgg2006/article/details/38664789?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param
+
 网卡接收数据，经过硬件电路的传输，把数据写入内存，向CPU发送信号，调用网卡中断处理程序处理数据。
 
 ### 进程阻塞为什么不占用CPU资源
@@ -83,3 +85,11 @@ iii.epoll的实现细节
 就绪列表应该具备快速插入删除的能力。双向链表就是符合要求的数据结构。
 
 利用红黑树保存监视的socket，epoll使用了红黑树作为索引结构。
+
+## 总结
+
+· select,poll的实现需要自己不断轮询所有fd集合，直到设备就绪，期间可能要睡眠和唤醒多次交替。epoll也需要调用epoll_wait不断轮询就绪链表，期间也可能多次睡眠和唤醒交替，但是其只需遍历就绪链表，不用遍历所有的文件描述符。\
+· slect,poll每次调用都要把文件描述符集合从用户态往内核态拷贝一次，并且把current往设备等待队列中挂一次，epoll只需要一次拷贝，把current挂上epoll内部定义的等待队列),也能节省不少开销。\
+· select受文件句柄fd的数量限制，默认是1024，岁可以修改系统参数，但还是有数量限制\
+· 就绪数据需要内核态到用户态的拷贝\
+· poll类似于slect,用一个阻塞函数来同时监听多个文件描述符，为解决select的句柄数量限制问题，poll引入了一个单独的数据结构pollfd,用来存放每个线程的文件描述符，一旦线程文件描述符注册到pollfd后，就能关闭掉fd,缺点是仍需要扫描pollfd里的所有fd,判断哪些fd已就绪。就绪数据需要从内核拷贝到用户态。

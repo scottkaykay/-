@@ -75,4 +75,18 @@ class MyString {
  }
 ```
 
-## 
+## explicit, constexpr, noexcept
+
+参考：https://www.cnblogs.com/gklovexixi/p/5622681.html
+
+explict: c++中，有时可以将构造函数用作自动类型转换函数，但这种特性不是总是合乎要求的，有时会导致意外的类型转换。explicit关键字的作用就是禁止自动的隐式转换，只能显式地进行类型转换。**注意：只有一个参数的构造函数，或者构造函数有n个参数，但有n-1个参数提供了默认值，这样的情况才能进行类型转换。**
+
+参考：https://blog.csdn.net/qq_42914703/article/details/103357355
+
+constexpr:c++11标准规定，允许将变量声明为constexpr类型，以便**由编译器来验证变量的值是否是一个常量表达式。**
+
+参考：https://blog.csdn.net/zkreats/article/details/50550786?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param
+
+noexcept:等同于throw,保证程序不抛出任何异常。使用noexcept时，std::teminate()函数会被立即调用，而不是调用std::unexpected();
+因此，在异常处理的过程中，编译器不会回退栈，这为编译器的优化提供了更大的空间。
+

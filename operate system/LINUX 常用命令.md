@@ -3,6 +3,12 @@
 ### 常用的10个命令
 
 · ls 查看目录中的文件\
+列出根目录下的所有目录： ls /
+
+列出目前工作目录下所有名称为s开头的文件： ls -ltr s*
+
+列出/bin目录以下所有目录及文件详细资料：ls -lR /bin
+
 · cd /home 进入/home目录   cd .. 返回上一级目录   cd ../.. 返回上两级目录 cd /  返回根目录  cd ~进入用户主目录\
 · touch 文件名   创建文件\
 · mkdir dir1 创建一个叫'dir1'的目录\
@@ -18,7 +24,12 @@
 · unzip file.zip 解压zip包\
 · unrar file.rar  解压rar包\
 · free -m  查看服务器内存使用情况\
-· top 查看cpu使用情况\
+· top 查看cpu使用情况，用于实时显示进程的动态\
+top: 显示进程信息\
+top -c: 显示完整命令\
+top -b  以批处理模式显示程序信息\
+top -S  以累积模式显示程序信息\
+top -p 139显示指定的进程信息\
 · lsof -i：端口号  查看端口被哪个进程占用（首先用lsof -i显示符合条件的进程情况）\
 · netstat -tunlp 用于显示tcp,udp的端口和进程等相关情况（-t 仅显示tcp相关选项，-u 仅显示udp相关选项， -n拒绝显示别名，能显示数字的全部转化为数字，-l仅列出有listen的服务状态，-p显示建立相关链接的程序名）\
 · netstat -tunlp | grep 端口号   用于查看指定端口号的进程情况
@@ -48,12 +59,24 @@ netstat -anp | grep 端口号    查看端口是否被占用，LISTEN表示被�
 ### find查找文件
 
 · 查找一个文件大小超过5M的文件： find . -type f -size +100M    .表示当前目录\ 
-· 如果知道文件名称，如何查找其在Linux下哪个目录： find / -name xxx  或者用locate xxx  来找\
+· 如果知道文件名称，如何查找其在Linux下哪个目录： find / -name "\*.c"   或者用locate xxx  来找\
 · 按文件特征查找：
 
 find / -amin -10 #查找系统中最后10分钟访问的文件\
 find / -atime -2 # 查找系统中最后48小时访问的文件\
 find / -size +100M #查找系统中大于100M的文件
+
+-amin n              在过去n分钟内被读过\
+-anewer file         比file更晚被读取过的文件\
+-atime n             在过去n天内被读过\
+-cmin n              在过去n分钟内被修改过\
+-cnewer file         比文件file更新的文件\
+-ctime n             在过去n天内被修改过\
+-empty  空文件\
+-ipath p    路径名称符合p的文件，ipath会忽略大小写\
+-name name , -iname name 文明名称符合name的文件，iname会忽略大小写\
+-size n    文件大小是n单位\
+-type c    文件类型是c的文件
 
 ### 查看文件
 
@@ -69,8 +92,20 @@ find / -size +100M #查找系统中大于100M的文件
 · cat 将文件从第一行开始连续的内容输出到屏幕上，但cat不常用，因为文件很大时，行数比较多时，屏幕无法容下全部内容，只能看到一部分内容。语法： cat [-n] 文件名\
 · more与less：more将文件从第一行开始，根据输出窗口大小，适当地输出内容到屏幕。当一页无法全部输出时，可以用回车键向下翻行，用空格键向下翻页。less支持向前翻页和向后翻页(pageup,pagedown),而且可以
 搜索内容，如果内容存在于文本，则会以高亮形式显示。\
-· head ，tail:  语法： head [n number] 文件名    number表示显示的行数\
+· head ，tail:  语法： head [n number] 文件名    number表示显示的行数， head -n 5 runoob.log 显示runoob.log文件的前5行\
 ·tailf 特别适合于日志文件的跟踪，与tail -f不同的是，如果文件不增长，它不回去访问磁盘文件，减少了磁盘访问，更省能源。
+
+tail -f note.log   跟踪note.log文件的增长情况\
+tail +20 bite.log  从第20行至文件末尾\
+tail -c 10 note.log  显示文件note.log的最后10个字符
+
+附tail参数表：\
+-f  循环读取\
+-q  不显示处理信息\
+-v  显示详细的处理信息\
+-c<数目>  显示的字节数\
+-n<行数>  显示文件的尾部n行内容\
+--pid=PID  与-f合用，表示在进程ID,PID死掉之后结束
 
 ## Linux awk命令
 

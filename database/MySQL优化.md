@@ -62,4 +62,50 @@ BEGIN; INSERT INTO salesinfo SET customerid=14; update inventory set quantity=11
 
 ### 锁定表
 由于事务的独占性，有时会影响数据库的性能。尤其是在很大的应用系统中。由于在事务执行的过程中，数据库将会被锁定，因此其它的用户请求只能暂时等待直到该事务结束。假设有成千上万的用户同时访问一个数据库系统，例如访问一个电子商务网站，就会产生比较严重的响应延迟。有些情况下我们可以通过锁定表的方法来获得更好的性能。\
-locktable inventory write select quantity from inventory
+locktable inventory write select quantity from inventory where item='book';\
+..\
+update inventory set quantity=11 where item='book';unlocktables
+
+### 使用外键
+
+锁定表的方法可以维护数据完整性，但不能保证数据的关联性，此时可使用外键。
+
+如，外键可以保证每一条销售记录都指向某一个存在的客户。在这里，外键可以把customerinfo表中的CustomerID映射到salesinfo表中CustomerID，任何一条没有合法CustomerID的记录都不会被更新或插入到salesinfo中。\
+createtable customerinfo( customerid not null,primary key(customerid)) tye=innodb;\
+createtable salesinfo(salesid int not null,customerid int not null,primary key(customerid,salesid),\
+foreignkey(customerid) references customerinfo(customerid) on delete cascade) type=innodb;
+
+注意例子中的参数“ON DELETE CASCADE”。该参数保证当customerinfo表中的一条客户记录被删除的时候，salesinfo表中所有与该客户相关的记录也会被自动删除。如果要在MySQL中使用外键，一定要记住在创建表的时候将表的类型定义为事务安全表InnoDB类型。该类型不是MySQL表的默认类型。
+
+### 使用索引
+
+索引可以令数据库服务器以比没有索引快得多的速度检索特定的行，尤其是在查询语句当中包含有MAX(),MIN()和ORDERBY这些命令的时候，性能提高更为明显。
+
+一般说来，索引应建立在那些将用于JOIN,WHERE判断和ORDERBY排序的字段上。尽量不要对数据库中某个含有大量重复的值的字段建立索引。对于一个ENUM类型的字段来说，出现大量重复值是很有可能的情况。
+
+使用复合索引：比如有一条语句是这样的：select * from users where area='beijing' and age=22;
+如果我们是在area和age上分别创建单个索引的话，由于mysql查询每次只能使用一个索引，所以虽然这样已经相对不做索引时全表扫描提高了很多效率，但是如果在area、age两列上创建复合索引的话将带来更高的效率。如果我们创建了(area, age, salary)的复合索引，那么其实相当于创建了(area,age,salary)、(area,age)、(area)三个索引，这被称为最佳左前缀特性。因此我们在创建复合索引时应该将最常用作限制条件的列放在最左边。
+
+使用短索引：例如，如果有一个CHAR(255)的 列，如果在前10 个或20 个字符内，多数值是惟一的，那么就不要对整个列进行索引。
+
+### 优化的查询语句
+
+· 最好在相同类型的字段间进行比较操作\
+· 在建有索引的字段上尽量不要使用函数进行操作\
+· 尽量减少like语句的使用，like “%aaa%” 不会使用索引而like “aaa%”可以使用索引。\
+· 不要在列上进行计算:\
+select * from users where YEAR(adddate)<2007;\
+将在每个行上进行运算，这将导致索引失效而进行全表扫描，因此我们可以改成:\
+select * from users where adddate<‘2007-01-01';
+
+·不使用NOT IN和<>操作：NOT IN和<>操作都不会使用索引将进行全表扫描。NOT IN可以NOT EXISTS代替，id<>3则可使用id>3 or id<3来代替。\
+· 避免在where子句中对字段进行null值判断，否则会导致引擎弃用索引进行全表扫描，所以最好不要给数据库留NULL，尽可能的使用 NOT NULL填充数据库.备注、描述、评论之类的可以设置为 NULL，其他的，最好不要使用NULL。不要以为 NULL 不需要空间，比如：char(100) 型，在字段建立时，空间就固定了， 不管是否插入值（NULL也包含在内），都是占用 100个字符的空间的，如果是varchar这样的变长字段， null 不占用空间。\
+· 尽量避免在where子句中使用!= 或<>操作符,否则会进行全表扫描\
+· 尽量避免在where子句中使用or连接条件，**如果一个字段有索引，一个字段没有索引，将导致引擎放弃使用索引进行全表扫描**：\
+select id from t where num=10 or name='admin'\
+可以改为：\
+select id from t where num=10\
+union all\
+select id from t where name='admin'
+
+· in 和not in也要慎用，如果是连续的数值，能用between就不要用in

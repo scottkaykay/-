@@ -108,4 +108,13 @@ select id from t where num=10\
 union all\
 select id from t where name='admin'
 
-· in 和not in也要慎用，如果是连续的数值，能用between就不要用in
+· in 和not in也要慎用，如果是连续的数值，能用between就不要用in,能用exist替代in是好的选择\
+· where子句使用参数也会导致全表扫描\
+· 避免在where子句中对字段进行表达式操作，函数操作\
+· 对于多张大数据量的表join,要先分页再join\
+· select count(\*) from table 不带任何条件的count会引起全表扫描，并且没有任何业务意义\
+· **索引不是越多越好，索引可以提高select的效率，但是也降低了insert和update的效率，因为insert或update可能会重建索引。一个表的索引数最好不要超过6个**\
+· 尽可能用varchar/nvarchar代替char/nchar，首先变长字段存储空间小，可以节省存储空间，其次对于查询来说，在一个相对较小的字段内搜索效率显然要高些。\
+· 任何地方都不要使用 select \* from t ，用具体的字段列表代替“\*”，不要返回用不到的任何字段\
+· 尽量避免使用游标，因为游标的效率较差，如果游标操作的数据超过1万行，\
+· 尽量避免使用大事务操作，提高系统并发能力

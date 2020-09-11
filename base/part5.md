@@ -90,3 +90,56 @@ constexpr:c++11标准规定，允许将变量声明为constexpr类型，以便**
 noexcept:等同于throw,保证程序不抛出任何异常。使用noexcept时，std::teminate()函数会被立即调用，而不是调用std::unexpected();
 因此，在异常处理的过程中，编译器不会回退栈，这为编译器的优化提供了更大的空间。
 
+## 迭代器失效
+
+序列式容器进行元素删除的时候，后面的元素会前移，导致后面所有元素的迭代器都会失效，因为序列式容器使用了连续分配的内存，删除一个元素导致后面所有的元素会向前移动一个位置，不能使用erase(iter++)的方式，**但erase方法可以返回下一个有效的迭代器！**
+
+```C++
+int main()
+{
+   vector<int> ivec;
+   int n, val;
+   cin >> n;
+   for (int i = 0; i < n; i++)
+   {
+      cin >> val;
+      ivec.push_back(val);
+
+   }
+   int count = 0;
+   for (vector<int>::iterator iter = ivec.begin(); iter != ivec.end(); )
+   {
+
+      if(count==3)
+         iter = ivec.erase(iter);
+      cout << *iter << endl;
+      count++;
+      iter++;
+   }
+   return 0;
+}
+```
+
+### 32位机和64位机不同数据类型的大小
+
+32：\
+char: 1
+short: 2
+int:  4
+long: 4
+long long :8
+float: 4
+double:8
+void*: 4
+
+
+64：\
+char: 1
+short: 2
+int:  4
+long: 4  (这是windows平台上的， linux平台上是8字节)
+long long :8
+float: 4
+double:8
+void*: 8
+

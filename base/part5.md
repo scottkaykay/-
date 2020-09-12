@@ -120,6 +120,9 @@ int main()
 }
 ```
 
+1. 当size()==capacity()，插入元素时vector会被重新分配内存，指向元素的迭代器都会失效。\
+2. 当size()<capacity()，插入元素时vector不会被重新分配内存。此时，若迭代器指向插入位置之前的元素，它仍有效；若迭代器指向插入位置之后的元素，它将会失效。
+
 ### 32位机和64位机不同数据类型的大小
 
 32：\
@@ -276,3 +279,30 @@ C++把字符串封装成了一种数据类型string,可以直接声明变量并�
 
 可以赋一个比现有字符更长的字符串吗     不能                                 可以
 
+### C中定义变长结构体
+
+```C++
+#include<iostream>
+#include<vector>
+#include<stack>
+#include<string.h>
+#include<string>
+using namespace std;
+
+struct Mydata {
+	int len;
+	char data[0];
+};
+
+int main()
+{
+	int len = 10;
+	char str[10] = "123456789";
+	
+	Mydata* mydata = (Mydata*)malloc(sizeof(Mydata) + 10);
+	memcpy(mydata->data, str, 10);
+	cout << mydata->data << endl;
+	free(mydata);
+	return 0;
+}
+```

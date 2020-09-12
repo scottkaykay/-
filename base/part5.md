@@ -143,3 +143,21 @@ float: 4
 double:8
 void*: 8
 
+## 传入一个char*,如何给它分配内存
+
+```C++
+void fun(char** c)
+{
+	*c = new char[1];
+	
+}
+
+int main()
+{
+   char* c = NULL;
+   fun(&c);
+   *c = '1';
+   cout << *c;
+   return 0; //改变指针的内容，需要使用指针的指针
+}
+```

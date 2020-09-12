@@ -143,7 +143,7 @@ float: 4
 double:8
 void*: 8
 
-## 传入一个char*,如何给它分配内存
+### 传入一个char*,如何给它分配内存
 
 ```C++
 void fun(char** c)
@@ -161,3 +161,118 @@ int main()
    return 0; //改变指针的内容，需要使用指针的指针
 }
 ```
+
+### 写一个string类，支持拷贝赋值，允许放入容器
+
+```C++
+#define _CRT_SECURE_NO_WARNINGS //忽略strcpy报错
+
+#include<iostream>
+#include<vector>
+#include<stack>
+#include<string.h>
+using namespace std;
+
+class Mystring
+{
+public:
+	Mystring() :data_(new char[1])
+	{
+		*data_ = '\0';
+	}
+	Mystring(const char* str) :data_(new char[strlen(str) + 1])
+	{
+		strcpy(data_, str);
+	}
+	Mystring(const Mystring& rhs) :data_(new char[rhs.size() + 1])
+	{
+		strcpy(data_, rhs.c_str());
+	}
+	Mystring& operator=(Mystring rhs)
+	{
+		newswap(rhs);
+		return *this;
+	}
+	size_t size() const
+	{
+		return strlen(data_);
+	}
+	const char* c_str() const
+	{
+		return data_;
+	}
+	void newswap(Mystring rhs)
+	{
+		swap(data_, rhs.data_);
+	}
+	~Mystring()
+	{
+		delete[] data_;
+	}
+private:
+	char* data_;
+};
+
+
+
+void foo(Mystring x)
+{
+
+}
+
+void bar(const Mystring& x)
+{
+
+}
+
+Mystring baz()
+{
+	Mystring ret("world");
+	return ret;
+}
+
+int main()
+{
+	Mystring s0;
+	Mystring s1("hello");
+	Mystring s2(s0);
+	Mystring s3 = s1;
+	s2 = s1;
+	foo(s1);
+	bar(s1);
+	foo("temporary");
+	bar("temporary");
+	Mystring s4 = baz();
+
+	vector<Mystring> svec;
+	svec.push_back(s0);
+	svec.push_back(s1);
+	svec.push_back(baz());
+	svec.push_back("good job");
+	return 0;
+}
+```
+
+### C与C++的字符串
+
+C++把字符串封装成了一种数据类型string,可以直接声明变量并进行赋值等字符串操作。区别：\
+				C字符串				c++ string对象
+	
+所需的头文件名称        	<string>或<string.h>               <string>或<string.h>
+	
+需要头文件原因		 	为了使用字符串函数 		     为了使用string类
+
+声明方式               	 char name[20]                        string name
+
+初始化方式		  	 char name[20]="nihao"               string name="nihao"
+
+必须声明字符串长度吗       	   是                                     否
+
+使用一个null字符吗         	      是                                     否
+
+字符串赋值的实现方式     	        strcpy(name,"john")                name="john"
+
+优点                                更快                           更易于使用，优选方案
+
+可以赋一个比现有字符更长的字符串吗     不能                                 可以
+

@@ -306,3 +306,28 @@ int main()
 	return 0;
 }
 ```
+
+### 求解结构体各数据成员的偏移量
+
+```C++
+#include<iostream>
+#include<stddef.h>
+
+using namespace std;
+
+struct A{
+	int a;
+	char b;
+	long c;
+};
+int main()
+{
+	cout<<(unsigned long)offsetof(A,a)<<endl;
+	cout<<(unsigned long)offsetof(A,c)-(unsigned long)offsetof(A,a)<<endl;
+	
+	A instance;
+	cout<<(unsigned long)(&mydata.c)<<endl;
+	cout<<(unsigned long)(&mydata.c)-(unsigned long)(&mydata.a)<<endl;
+	return 0;
+}
+```

@@ -93,3 +93,17 @@ iii.epoll的实现细节
 · select受文件句柄fd的数量限制，默认是1024，岁可以修改系统参数，但还是有数量限制\
 · 就绪数据需要内核态到用户态的拷贝\
 · poll类似于slect,用一个阻塞函数来同时监听多个文件描述符，为解决select的句柄数量限制问题，poll引入了一个单独的数据结构pollfd,用来存放每个线程的文件描述符，一旦线程文件描述符注册到pollfd后，就能关闭掉fd,缺点是仍需要扫描pollfd里的所有fd,判断哪些fd已就绪。就绪数据需要从内核拷贝到用户态。
+
+## 补充与梳理
+
+https://blog.csdn.net/zgege/article/details/81632990?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param
+
+epoll调用分为三部分：\
+epoll_create:建立红黑树和就绪链表，红黑树用于存储所有需要监控的套接字，就绪链表存储所有有事件发生的socket套接字\
+epoll_ctl: 如果增加socket句柄，先检查红黑树中是否已存在，如果不存在，加入到树干中。除了加入新的socket套接字，还会在内核中断处理程序中注册回调函数，告知内核，如果这个句柄的中断到了，就把该句柄加入到就绪链表中。\
+epoll_wait:返回就绪链表中有事件的套接字socket
+
+两种模式LT(水平触发),ET(边缘触发):\
+水平触发模式下，只要一个句柄上的事件一次没有处理完，下次调用epoll_wait还会返回这个句柄，为什么？epoll_wait会把准备就绪的socket拷贝到用户态内存，然后清空就绪链表，epoll_wait还会做一件事，就是检查这些socket，如果确实有未处理的事件，会把该socket放回就绪链表。
+
+包含的数据结构：eventpoll,epitem(没添加一个文件描述符，就创建一个epitem结构体)

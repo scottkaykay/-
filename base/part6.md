@@ -36,3 +36,16 @@ multimap的访问必须用insert或者emplace
 ### 模板类型替换发生在什么阶段
 
 发生在链接阶段
+
+
+### 指针传递
+
+指针传递本质上还是值传递，只不过传递的是地址，如果需要改变指针本身的地址，需要传入指针的指针或指针的引用。\
+https://blog.csdn.net/u013130743/article/details/80806179
+
+### NULL和nullptr的区别
+
+https://blog.csdn.net/qq_18108083/article/details/84346655
+
+C中，NULL代表空指针( (void*)0 ) ,C++是强类型语言，无法将无类型指针隐式转换为其他类型的指针，所以用0来代替空指针，即规定NULL为0.然而在函数重载时，如果传入NULL,程序运行时视作int型的0，而不是空指针，为了解决这个NULL的二义性问题，C++引入了nullptr来表示空指针。
+

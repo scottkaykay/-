@@ -20,8 +20,9 @@
 · mv * ../ 当前目录所有文件移动到上一级目录\
 · ps -ef|grep xxx 显示进程pid\
 · kill -进程id  先使用ps找到进程的id,然后用kill中止进程\
-· tar -xvf file.tar  解压tar包\
+· tar -xvf file.tar  解压tar包   tar -czvf test.tar.gz a.c 压缩a.c文件成test.tar.gz\
 · unzip file.zip 解压zip包\
+· zip -q -r html.zip /home/html  将/home/html目录下的所有文件和文件夹打包为当前目录下的html.zip
 · unrar file.rar  解压rar包\
 · free -m  查看服务器内存使用情况\
 · top 查看cpu使用情况，用于实时显示进程的动态\
@@ -32,12 +33,15 @@ top -S  以累积模式显示程序信息\
 top -p 139显示指定的进程信息\
 · lsof -i：端口号  查看端口被哪个进程占用（首先用lsof -i显示符合条件的进程情况）\
 · netstat -tunlp 用于显示tcp,udp的端口和进程等相关情况（-t 仅显示tcp相关选项，-u 仅显示udp相关选项， -n拒绝显示别名，能显示数字的全部转化为数字，-l仅列出有listen的服务状态，-p显示建立相关链接的程序名）\
-· netstat -tunlp | grep 端口号   用于查看指定端口号的进程情况
+· netstat -tunlp | grep 端口号   用于查看指定端口号的进程情况\
+· ifconfig 查看网络设备信息\
+· 在当前目录中查找后缀有.file字样的文件中包含test字符串的文件，并打印出该字符串的行： grep test \*file
 
 ### ps查看进程
 
 · ps -ef | grep java  查看所有Java进程，grep是搜索关键字\
-· ps -aux | grep java   aux显示所有状态
+· ps -aux | grep java   aux显示所有状态\
+· ps -ef |less  查看进程信息并通过less分页显示
 
 ### kill进程
 
@@ -55,6 +59,14 @@ tail -f xxx.out  屏幕上会动态显示当前日志，Ctrl+c停止
 ### 查看端口
 
 netstat -anp | grep 端口号    查看端口是否被占用，LISTEN表示被占用，不是LISTENING!
+
+netstat -a  显示详细的网络状况
+
+显示当前用户UDP连接状况： netstat -nu
+
+显示UDP端口号的使用情况： netstat -apu
+
+显示监听的套接口 netstat -l
 
 ### find查找文件
 
@@ -74,7 +86,7 @@ find / -size +100M #查找系统中大于100M的文件
 -ctime n             在过去n天内被修改过\
 -empty  空文件\
 -ipath p    路径名称符合p的文件，ipath会忽略大小写\
--name name , -iname name 文明名称符合name的文件，iname会忽略大小写\
+-name name , -iname name 文件名称符合name的文件，iname会忽略大小写\
 -size n    文件大小是n单位\
 -type c    文件类型是c的文件
 
@@ -83,7 +95,7 @@ find / -size +100M #查找系统中大于100M的文件
 · **cat  由第一行开始显示，并将所有内容输出** \
 · tac  从最后一行倒序显示内容，并将所有内容输出\
 · more 根据窗口大小，一页一页地显示文件内容\
-· less 和more类似，但可以往前翻页，而且可以搜索字符\
+· less 和more类似，但可以往前翻页，而且可以搜索字符, less 1.log 2.log 查看多个文件，使用n切换到2.log,使用p切换到1.log   
 · head  只显示头几行\
 · tail  只显示最后几行\
 · nl    类似于cat -n  显示时输出行号\

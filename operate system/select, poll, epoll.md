@@ -94,6 +94,14 @@ iii.epoll的实现细节
 · 就绪数据需要内核态到用户态的拷贝\
 · poll类似于slect,用一个阻塞函数来同时监听多个文件描述符，为解决select的句柄数量限制问题，poll引入了一个单独的数据结构pollfd,用来存放每个线程的文件描述符，一旦线程文件描述符注册到pollfd后，就能关闭掉fd,缺点是仍需要扫描pollfd里的所有fd,判断哪些fd已就绪。就绪数据需要从内核拷贝到用户态。
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------\
+2020.9.22更新
+
+· select流程：将socket文件描述符保存在fd_set的数组(long型)中，调用select函数拷贝到内核空间，内核轮询一遍所有的socket,如果没有没有一个socket有事件发生，则内核进程进入休眠，直到有socket发生事件或超时，唤醒内核进程，此时select返回就绪socket数量，(超时返回0，出错返回-1),用户进程还需要遍历fd_set找出哪些socket就绪了，之后才能调用read将数据从内核拷贝到用户空间。\
+·select缺点：单个进程能够监视的文件描述符的数量有最大限制，一般为1024（可通过修改宏定义/重新编译内核 提升上限，但是效率也会很低），需要维护一个存放大量文件描述符的数据结构，其从用户空间拷贝到内核空间的开销较大，每次有socket描述符活跃的时候，都要遍历一遍fd_Set找出对应的描述符，时间消耗大。\
+· poll和select类似，区别是它采用了pollfd的结构体（包含文件描述符，关心的事件，活跃事件），并以链表的形式组织\
+· epoll高效的原因：事件驱动，在添加socket文件描述符时，向内核中断处理程序中注册了回调函数，告知内核一旦有socket发生事件，就将socet句柄加入到就绪链表中，只要遍历就绪链表就可以找到所有的就绪socket.比整体遍历效率高多了。使用mmap内存映射技术，彻底声调系统调用拷贝的开销。将用户空间的一块内存空间和内核空间的一块内存映射到同一块物理内存，这样内核就可以直接看到epoll监视的socket描述符。
+
 ## 补充与梳理
 
 https://blog.csdn.net/zgege/article/details/81632990?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param
@@ -101,9 +109,11 @@ https://blog.csdn.net/zgege/article/details/81632990?utm_medium=distribute.pc_re
 epoll调用分为三部分：\
 epoll_create:建立红黑树和就绪链表，红黑树用于存储所有需要监控的套接字，就绪链表存储所有有事件发生的socket套接字\
 epoll_ctl: 如果增加socket句柄，先检查红黑树中是否已存在，如果不存在，加入到树干中。除了加入新的socket套接字，还会在内核中断处理程序中注册回调函数，告知内核，如果这个句柄的中断到了，就把该句柄加入到就绪链表中。\
-epoll_wait:返回就绪链表中有事件的套接字socket
+epoll_wait:返回就绪链表中有事件的套接字socket数量
 
 两种模式LT(水平触发),ET(边缘触发):\
-水平触发模式下，只要一个句柄上的事件一次没有处理完，下次调用epoll_wait还会返回这个句柄，为什么？epoll_wait会把准备就绪的socket拷贝到用户态内存，然后清空就绪链表，epoll_wait还会做一件事，就是检查这些socket，如果确实有未处理的事件，会把该socket放回就绪链表。
+水平触发模式下，只要一个句柄上的事件一次没有处理完，下次调用epoll_wait还会返回这个句柄，为什么？epoll_wait会把准备就绪的socket拷贝到用户态内存，然后清空就绪链表，epoll_wait还会做一件事，就是检查这些socket，如果确实有未处理的事件，会把该socket放回就绪链表。ET模式在很大程度上减少了epoll事件被重复触发的次数，因此效率要比LT模式高。
 
-包含的数据结构：eventpoll,epitem(没添加一个文件描述符，就创建一个epitem结构体)
+包含的数据结构：eventpoll,epitem(每添加一个文件描述符，就创建一个epitem结构体)
+
+推荐资料：https://blog.csdn.net/jiejiemcu/article/details/107083724?utm_medium=distribute.pc_relevant.none-task-blog-title-2&spm=1001.2101.3001.4242

@@ -2,6 +2,8 @@
 
 https://www.cnblogs.com/yhlboke-1992/p/9315263.html
 
+https://blog.csdn.net/lizhenwei0219/article/details/96145663
+
 ### 全局变量
 
 同一个进程里的线程共享地址空间和进程分配的资源，所以进程中定义的全局变量每个线程都可以访问，从而达到通信的目的。

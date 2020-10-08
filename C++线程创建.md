@@ -79,3 +79,86 @@ int main()
     return 0;
 }
 ```
+
+### 3线程打印26个字母，如1A,2B,3C,1D,2E,3F...
+
+```C++
+#include<iostream>
+#include<thread>
+#include<mutex>
+
+using namespace std;
+
+mutex mymutex;
+int ct = 1;
+int num = 0;
+char c = 'A';
+void thread1()
+{
+	while (1)
+	{
+		if (num >= 26)
+			break;
+		lock_guard <mutex> lock(mymutex);
+		if (ct == 1)
+		{
+			c ='A'+num;
+			cout << ct << c << " ";
+			++num;
+			++ct;
+		}
+	}
+}
+
+void thread2()
+{
+	while (1)
+	{
+		if (num >= 26)
+		{
+			cout << "ok" << endl;
+			break;
+		}
+		lock_guard <mutex> lock(mymutex);
+		if (ct == 2)
+		{
+			c = 'A'+num;
+			cout << ct << c << " ";
+			++num;
+			++ct;
+		}
+	}
+}
+
+void thread3()
+{
+	while (1)
+	{
+		if (num >= 26)
+			break;
+		lock_guard <mutex> lock(mymutex);
+		if (num >= 26)
+			break;
+		if (ct == 3)
+		{
+			c ='A'+num;
+			cout << ct << c << " ";
+			++num;
+			ct = 1;
+		}
+	}
+	
+}
+
+int main()
+{
+	thread t1(thread1);
+	thread t2(thread2);
+	thread t3(thread3);
+
+	t1.join();
+	t2.join();
+	t3.join();
+	return 0;
+}
+```
